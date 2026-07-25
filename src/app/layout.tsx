@@ -9,6 +9,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body>
         <nav style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem" }}>
           <a href="/catalog">Catalog</a>
+          <form action="/logout" method="post" style={{ marginLeft: "auto" }}>
+            <button type="submit" style={{ background: "none", border: "none", color: "#2563eb", cursor: "pointer", padding: 0, font: "inherit" }}>
+              Logout
+            </button>
+          </form>
         </nav>
         {children}
       </body>
