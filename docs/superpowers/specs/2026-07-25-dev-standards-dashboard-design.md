@@ -44,6 +44,8 @@ One Next.js full-stack application (UI + server API in one codebase) backed by M
 
 **Why a worker:** long AI jobs would time out in a synchronous web request. The worker + Job-table pattern is what makes the system reliable instead of prone to timeouts.
 
+**Worker operation:** the worker polls the `Job` collection on a short cadence (every ~5s), atomically claims a queued job by setting its status to `running` (preventing double-execution), and runs **one job at a time** per worker instance. The single-user deployment runs one worker process; additional instances can be added later if throughput ever matters.
+
 **Embedding into the intranet:** the deployed app is linked from, or embedded into, the Google Sites intranet via an `<iframe>` embed code. The single-user password gates access so it is not exposed openly.
 
 ## 4. Data Model (MongoDB collections)
@@ -92,11 +94,15 @@ A pasted/uploaded code file or AI tool-output submitted for grading.
 A profile auto-derived from conversations/artifacts.
 - `name`, `aliases[]` (name variants — AI suggests merges, human confirms), `notes`, `firstSeen`, `lastSeen`
 
+**Materialization:** Phase 1 creates a bare `Developer` record from each `Conversation.developerName` (one per distinct name). Alias merging and identity resolution are Phase 3 work.
+
 ### 4.8 `Scorecard`
 Cached per-developer rollup (materialized, not recomputed per view).
 - `developerId` (referenced), `period`
 - `overallScore`, `perCategory` scores (embedded map), `trend`
 - `strengths[]`, `gaps[]`, `computedAt`
+
+**Scoring formula:** the exact rollup (how `pass`/`fail`/`partial`/`n-a` and severity weight into `overallScore` and per-category scores) will be specified in Phase 3 planning; it is not required for Phase 1.
 
 ### 4.9 `Job`
 Background AI task record.
@@ -139,13 +145,13 @@ Shared infrastructure: one worker process + the `Job` collection + an OpenAI cli
 ### 6.1 Pipeline A — Discovery (`Conversation → Pattern → Standard`)
 1. **Ingest:** paste conversation → stored as `Conversation` → parsed into speaker turns + code blocks.
 2. **Queue:** `Job{ type: mine-patterns, targetId }`.
-3. **Worker mines:** sends conversation to OpenAI with a structured-output prompt that extracts candidate patterns — each with description, suggested category, severity, **direct-quote evidence**, occurrences, and suggested standard text. The prompt includes existing standard codes so it **does not re-propose known standards**.
+3. **Worker mines:** sends conversation to OpenAI with a structured-output prompt that extracts candidate patterns — each with description, suggested category, severity, **direct-quote evidence**, occurrences, and suggested standard text. The prompt includes existing standard codes so it **does not re-propose known standards**. Re-mining a conversation, or mining one that overlaps prior conversations, is de-duplicated against existing `Pattern`s and `Standard`s (keyword + semantic match); only net-new candidates reach the review queue, and near-duplicates are offered as merge candidates rather than separate entries.
 4. **Store** results as `Pattern` (status `proposed`). Not yet a Standard.
 5. **Review queue:** human sees each proposed pattern with evidence → Approve (creates `Standard`), Reject, Merge into existing standard, or Edit-then-approve.
 
 ### 6.2 Pipeline B — Compliance (`Conversation/Artifact → Evaluations → Scorecard`)
 1. **Trigger:** mark conversation analyzed, or submit an Artifact → queue `Job{ type: grade }`.
-2. **Worker grades:** loads only **applicable** standards (filtered by the target's detected stack via `Standard.appliesTo`), evaluates the work shown against each — **batched one OpenAI call per category** for accuracy and context safety. Each result → an `Evaluation` (`pass`/`fail`/`partial`/`n-a`, confidence, rationale, evidence quote). The `n-a` option prevents false fails on irrelevant standards.
+2. **Worker grades:** loads only **applicable** standards (filtered by the target's detected stack via `Standard.appliesTo`), evaluates the work shown against each — **batched one OpenAI call per category** for accuracy and context safety. Each result → an `Evaluation` (`pass`/`fail`/`partial`/`n-a`, confidence, rationale, evidence quote). The `n-a` option prevents false fails on irrelevant standards. *(Stack detection — how a target's stacks are determined for filtering — is a Phase 2 mechanism and will be specified in Phase 2 planning.)*
 3. **Rollup:** recompute the developer's `Scorecard` (overall + per-category, strengths, gaps), cached.
 
 ### 6.3 Developer identity resolution
@@ -155,7 +161,7 @@ Same person may appear under name variants across conversations. AI **suggests**
 - **Approval gates:** AI never writes Standards or final scorecards without a human click.
 - **Evidence-first:** every `Pattern`/`Evaluation` must cite a direct quote; missing quote → flagged low-confidence and filterable.
 - **Structured outputs** enforce shape; no free-text drift.
-- **Confidence routing:** low-confidence `Evaluation`s go to a "needs your eyes" queue, not silently into scores.
+- **Confidence routing:** low-confidence `Evaluation`s go to a "needs your eyes" queue, not silently into scores. The threshold is configurable (default `0.7`).
 - **Model versioning:** each `Evaluation` records its model so re-grading on upgrade is comparable.
 
 ### 6.5 Cost & error handling
@@ -179,7 +185,7 @@ Four areas plus a woven review queue. Principle: **no black-box numbers** — ev
 
 ## 9. Cross-cutting (Security & Ops)
 
-- **Auth:** single-user password, hashed, httpOnly cookie. No account system.
+- **Auth:** single-user password, hashed, httpOnly cookie. No account system. The password is set via a server env var on first boot; reset is done by changing the env var and restarting (no in-app reset flow — single-user).
 - **Secrets:** OpenAI key and MongoDB connection string live in **server env only**, never shipped to the browser.
 - **Observability:** `Job` status + `tokenCost` visible in-app; basic error logging.
 
