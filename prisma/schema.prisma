@@ -1,0 +1,124 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+// Embedded sub-documents
+type StandardExamples {
+  good String?
+  bad  String?
+}
+
+type ParsedMessage {
+  role      String
+  author    String
+  content   String
+  timestamp String?
+}
+
+type PatternEvidence {
+  quote String
+}
+
+model Category {
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  slug        String     @unique
+  description String?
+  parentId    String?    @db.ObjectId
+  order       Int        @default(0)
+  standards   Standard[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Standard {
+  id                   String           @id @default(auto()) @map("_id") @db.ObjectId
+  code                 String           @unique
+  title                String
+  description          String
+  categoryId           String?          @db.ObjectId
+  category             Category?        @relation(fields: [categoryId], references: [id])
+  severity             String           @default("major") // Severity
+  status               String           @default("draft") // StandardStatus
+  howToCheck           String
+  appliesTo            String[]         @default(["all"]) // Stack[]
+  examples             StandardExamples?
+  source               String           @default("authored") // authored | mined
+  sourceConversationId String?          @db.ObjectId // relation deferred — Phase 1 has no join need
+  version              Int              @default(1)
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+
+  @@index([categoryId])
+  @@index([status])
+}
+
+model Developer {
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  aliases       String[]
+  notes         String?
+  firstSeen     DateTime      @default(now())
+  lastSeen      DateTime      @default(now())
+  conversations Conversation[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model Conversation {
+  id              String         @id @default(auto()) @map("_id") @db.ObjectId
+  title           String
+  developerName   String?
+  developerId     String?        @db.ObjectId
+  developer       Developer?     @relation(fields: [developerId], references: [id])
+  rawText         String
+  parsedMessages  ParsedMessage[]
+  metadata        Json?
+  status          String         @default("ingested") // ConversationStatus
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@index([developerId])
+}
+
+model Pattern {
+  id                    String           @id @default(auto()) @map("_id") @db.ObjectId
+  fromConversationId    String           @db.ObjectId // relation deferred — Phase 1 has no join need
+  description           String
+  suggestedCategory     String?
+  severity              String           @default("major") // Severity
+  evidence              PatternEvidence[]
+  occurrences           Int              @default(1)
+  suggestedStandardText String?
+  status                String           @default("proposed") // PatternStatus
+  linkedStandardId      String?          @db.ObjectId
+  reviewedAt            DateTime?
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
+
+  @@index([fromConversationId])
+  @@index([status])
+}
+
+model Job {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  type       String    // JobType
+  targetType String?   // conversation | artifact
+  targetId   String?   @db.ObjectId
+  status     String    @default("queued") // JobStatus
+  progress   Int       @default(0)
+  result     Json?
+  error      String?
+  tokenCost  Int       @default(0)
+  startedAt  DateTime?
+  finishedAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([status])
+}
