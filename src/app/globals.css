@@ -1,0 +1,8 @@
+:root { color-scheme: light dark; }
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, sans-serif; line-height: 1.5; padding: 1.5rem; max-width: 70rem; margin-inline: auto; }
+a { color: #2563eb; }
+table { border-collapse: collapse; width: 100%; }
+th, td { text-align: left; border-bottom: 1px solid #8884; padding: .4rem .6rem; vertical-align: top; }
+.badge { font-size: .75rem; padding: .1rem .4rem; border-radius: 999px; background: #8883; }
+.sev-blocker { color: #b91c1c; } .sev-major { color: #b45309; } .sev-minor { color: #4d7c0f; }
