@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { notFound } from "next/navigation";
+import { MineButton } from "./MineButton";
 
 export const dynamic = "force-dynamic";
 
@@ -7,6 +8,11 @@ export default async function ConversationDetailPage({ params }: { params: Promi
   const { id } = await params;
   const conv = await prisma.conversation.findUnique({ where: { id }, include: { developer: true } });
   if (!conv) notFound();
+
+  const [latestJob, proposedCount] = await Promise.all([
+    prisma.job.findFirst({ where: { targetId: id }, orderBy: { createdAt: "desc" } }),
+    prisma.pattern.count({ where: { fromConversationId: id, status: "proposed" } }),
+  ]);
 
   return (
     <>
@@ -28,6 +34,33 @@ export default async function ConversationDetailPage({ params }: { params: Promi
         </div>
       </dl>
 
+      <section className="block">
+        <h2 className="section-title">Pattern mining</h2>
+        <dl className="meta-grid">
+          <div>
+            <dt>Latest job</dt>
+            <dd>
+              {latestJob ? (
+                <>
+                  <span className="badge">{latestJob.status}</span>
+                  {latestJob.tokenCost ? <> · {latestJob.tokenCost} tokens</> : null}
+                </>
+              ) : (
+                <span className="note">none</span>
+              )}
+            </dd>
+          </div>
+          <div>
+            <dt>Proposed patterns awaiting review</dt>
+            <dd><strong>{proposedCount}</strong></dd>
+          </div>
+        </dl>
+        <MineButton conversationId={conv.id} jobStatus={latestJob?.status} />
+        {latestJob?.status === "failed" && (
+          <p className="form-error">Last job failed: {latestJob.error}</p>
+        )}
+      </section>
+
       <h2 className="section-title">Messages</h2>
       <ol className="message-list">
         {conv.parsedMessages.map((m, i) => (
@@ -40,8 +73,6 @@ export default async function ConversationDetailPage({ params }: { params: Promi
           </li>
         ))}
       </ol>
-
-      <p className="note"><em>AI pattern-mining arrives in Phase 1 Chunk 4.</em></p>
     </>
   );
 }
