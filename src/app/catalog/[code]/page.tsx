@@ -13,19 +13,58 @@ export default async function StandardDetailPage({ params }: { params: Promise<{
 
   return (
     <>
-      <p><a href="/catalog">← Catalog</a></p>
-      <h1>{standard.code}: {standard.title}</h1>
-      <p><strong>Category:</strong> {standard.category?.name ?? "—"} · <strong>Severity:</strong> {standard.severity} · <strong>Status:</strong> {standard.status}</p>
-      <p><strong>Applies to:</strong> {standard.appliesTo.join(", ")}</p>
-      <h2>Description</h2>
-      <p>{standard.description}</p>
-      <h2>How to check</h2>
-      <p>{standard.howToCheck}</p>
-      {standard.examples && (standard.examples.good || standard.examples.bad) && (
+      <p className="back-link"><a href="/catalog">← Catalog</a></p>
+
+      <div className="page__head">
+        <p className="eyebrow">{standard.category?.name ?? "Standard"}</p>
+        <h1 className="page__title">
+          <span className="page__title-code">{standard.code}</span>
+          {standard.title}
+        </h1>
+      </div>
+
+      <dl className="meta-grid">
+        <div>
+          <dt>Category</dt>
+          <dd>{standard.category?.name ?? "—"}</dd>
+        </div>
+        <div>
+          <dt>Severity</dt>
+          <dd className={`sev sev-${standard.severity}`}>{standard.severity}</dd>
+        </div>
+        <div>
+          <dt>Status</dt>
+          <dd><span className="badge">{standard.status}</span></dd>
+        </div>
+        <div>
+          <dt>Applies to</dt>
+          <dd>{standard.appliesTo.join(", ")}</dd>
+        </div>
+      </dl>
+
+      <h2 className="section-title">Description</h2>
+      <p className="prose">{standard.description}</p>
+
+      <h2 className="section-title">How to check</h2>
+      <p className="prose">{standard.howToCheck}</p>
+
+      {(standard.examples?.good || standard.examples?.bad) && (
         <>
-          <h2>Examples</h2>
-          {standard.examples.good && <p><strong>Good:</strong> <code>{standard.examples.good}</code></p>}
-          {standard.examples.bad && <p><strong>Bad:</strong> <code>{standard.examples.bad}</code></p>}
+          <h2 className="section-title">Examples</h2>
+          <div className="examples">
+            {standard.examples?.good && (
+              <figure className="example example--good">
+                <figcaption>Good</figcaption>
+                <pre><code>{standard.examples.good}</code></pre>
+              </figure>
+            )}
+            {standard.examples?.bad && (
+              <figure className="example example--bad">
+                <figcaption>Bad</figcaption>
+                <pre><code>{standard.examples.bad}</code></pre>
+              </figure>
+            )}
+          </div>
         </>
       )}
     </>

@@ -6,14 +6,18 @@ import { login, type LoginState } from "./actions";
 export function LoginForm({ next }: { next: string }) {
   const [state, formAction, pending] = useActionState<LoginState, FormData>(login, null);
   return (
-    <form action={formAction} style={{ display: "grid", gap: "0.75rem", maxWidth: "20rem" }}>
+    <form action={formAction} className="form">
       <input type="hidden" name="next" value={next} />
-      <label>
-        Password
+      <label className="field">
+        <span className="field__label">Password</span>
         <input type="password" name="password" required autoComplete="current-password" />
       </label>
-      <button type="submit" disabled={pending}>{pending ? "Signing in…" : "Sign in"}</button>
-      {state?.error && <p style={{ color: "#b91c1c" }}>{state.error}</p>}
+      <div className="form-actions">
+        <button className="btn" type="submit" disabled={pending}>
+          {pending ? "Signing in…" : "Sign in"}
+        </button>
+      </div>
+      {state?.error && <p className="form-error" role="alert">{state.error}</p>}
     </form>
   );
 }

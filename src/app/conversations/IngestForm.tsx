@@ -28,13 +28,32 @@ export function IngestForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} style={{ display: "grid", gap: "0.75rem", maxWidth: "48rem", marginTop: "1rem" }}>
-      <input placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} required />
-      <input placeholder="Developer name" value={developerName} onChange={(e) => setDeveloperName(e.target.value)} required />
-      <textarea placeholder="Paste the full conversation here…" value={rawText}
-        onChange={(e) => setRawText(e.target.value)} required rows={12} style={{ fontFamily: "ui-monospace, monospace" }} />
-      <button type="submit" disabled={busy}>{busy ? "Ingesting…" : "Ingest conversation"}</button>
-      {error && <p style={{ color: "#b91c1c" }}>{error}</p>}
+    <form onSubmit={onSubmit} className="form form--wide">
+      <label className="field">
+        <span className="field__label">Title</span>
+        <input placeholder="Conversation title" value={title} onChange={(e) => setTitle(e.target.value)} required />
+      </label>
+      <label className="field">
+        <span className="field__label">Developer name</span>
+        <input placeholder="Developer" value={developerName} onChange={(e) => setDeveloperName(e.target.value)} required />
+      </label>
+      <label className="field">
+        <span className="field__label">Raw transcript</span>
+        <textarea
+          className="textarea-mono"
+          placeholder="Paste the full conversation here…"
+          value={rawText}
+          onChange={(e) => setRawText(e.target.value)}
+          required
+          rows={12}
+        />
+      </label>
+      <div className="form-actions">
+        <button className="btn" type="submit" disabled={busy}>
+          {busy ? "Ingesting…" : "Ingest conversation"}
+        </button>
+      </div>
+      {error && <p className="form-error" role="alert">{error}</p>}
     </form>
   );
 }

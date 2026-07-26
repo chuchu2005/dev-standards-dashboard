@@ -8,7 +8,10 @@ export default async function LoginPage({
   const { next = "/catalog" } = await searchParams;
   return (
     <>
-      <h1>Sign in</h1>
+      <div className="page__head">
+        <p className="eyebrow">Access</p>
+        <h1 className="page__title">Sign in</h1>
+      </div>
       <LoginForm next={next} />
     </>
   );

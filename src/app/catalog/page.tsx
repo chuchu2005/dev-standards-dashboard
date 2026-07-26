@@ -10,30 +10,40 @@ export default async function CatalogPage() {
 
   return (
     <>
-      <h1>Standards Catalog</h1>
-      {categories.map((c) => (
-        <section key={c.id} style={{ marginBottom: "2rem" }}>
-          <h2>{c.name}</h2>
-          <p style={{ color: "#888", marginTop: "-.5rem" }}>{c.description}</p>
-          {c.standards.length === 0 ? (
-            <p style={{ color: "#aaa" }}><em>No standards yet — add via review or mining.</em></p>
-          ) : (
-            <table>
-              <thead><tr><th>Code</th><th>Title</th><th>Severity</th><th>Status</th></tr></thead>
-              <tbody>
-                {c.standards.map((s) => (
-                  <tr key={s.id}>
-                    <td><a href={`/catalog/${s.code}`}>{s.code}</a></td>
-                    <td>{s.title}</td>
-                    <td className={`sev-${s.severity}`}>{s.severity}</td>
-                    <td><span className="badge">{s.status}</span></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </section>
-      ))}
+      <div className="page__head">
+        <p className="eyebrow">Reference</p>
+        <h1 className="page__title">Standards Catalog</h1>
+      </div>
+
+      <div className="reveal-list">
+        {categories.map((c) => (
+          <section key={c.id} className="catalog-category reveal">
+            <header className="catalog-category__head">
+              <h2 className="section-title">{c.name}</h2>
+              <p className="catalog-category__desc">{c.description}</p>
+            </header>
+            {c.standards.length === 0 ? (
+              <p className="empty"><em>No standards yet — add via review or mining.</em></p>
+            ) : (
+              <table className="data-table">
+                <thead>
+                  <tr><th>Code</th><th>Title</th><th>Severity</th><th>Status</th></tr>
+                </thead>
+                <tbody>
+                  {c.standards.map((s) => (
+                    <tr key={s.id}>
+                      <td className="cell-code"><a href={`/catalog/${s.code}`}>{s.code}</a></td>
+                      <td>{s.title}</td>
+                      <td className={`sev sev-${s.severity}`}>{s.severity}</td>
+                      <td><span className="badge">{s.status}</span></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </section>
+        ))}
+      </div>
     </>
   );
 }
