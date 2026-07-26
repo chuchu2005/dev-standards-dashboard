@@ -8,7 +8,10 @@ import { execSync } from "node:child_process";
 let mongo: MongoMemoryReplSet;
 
 export async function setup() {
-  mongo = await MongoMemoryReplSet.create({ replSet: { count: 1 } });
+  mongo = await MongoMemoryReplSet.create({
+    instanceOpts: [{ launchTimeout: 60_000 }], // default 10s is too tight under host contention
+    replSet: { count: 1 },
+  });
   // Insert a named DB into the URI. The standalone form is `mongodb://host:port/`,
   // but the replset form is `mongodb://host:port/?replicaSet=...` — appending "test"
   // verbatim would corrupt the query string, so use the URL API.
