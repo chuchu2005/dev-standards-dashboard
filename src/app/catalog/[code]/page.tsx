@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { notFound } from "next/navigation";
+import { EditStandardForm } from "./EditStandardForm";
 
 export const dynamic = "force-dynamic";
 
@@ -67,6 +68,22 @@ export default async function StandardDetailPage({ params }: { params: Promise<{
           </div>
         </>
       )}
+
+      <section className="block">
+        <h2 className="section-title">Edit standard</h2>
+        <p className="note">Version {standard.version}. Saving bumps the version and updates the field immediately.</p>
+        <EditStandardForm
+          code={standard.code}
+          initial={{
+            title: standard.title,
+            description: standard.description,
+            howToCheck: standard.howToCheck,
+            severity: standard.severity,
+            status: standard.status,
+            appliesTo: standard.appliesTo.join(", "),
+          }}
+        />
+      </section>
     </>
   );
 }
