@@ -76,89 +76,7 @@ code { font-size: 0.88em; letter-spacing: 0; }
   border-radius: 1px;
 }
 
-/* ---------- Layout shell ---------- */
-.site-header {
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  background: var(--paper);
-  border-bottom: 1px solid var(--rule);
-}
-.site-header__inner {
-  max-width: var(--measure);
-  margin-inline: auto;
-  padding: 0.85rem 1.5rem;
-  display: flex;
-  align-items: baseline;
-  gap: 1.25rem;
-  flex-wrap: wrap;
-}
-
-.wordmark {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 0.45rem;
-  text-decoration: none;
-  color: var(--ink);
-  margin-right: auto;
-}
-.wordmark__mark {
-  font-family: var(--serif);
-  font-weight: 600;
-  font-size: 1.4rem;
-  line-height: 1;
-  color: var(--accent);
-}
-.wordmark__text {
-  font-family: var(--serif);
-  font-weight: 600;
-  font-size: 1.05rem;
-  letter-spacing: -0.01em;
-}
-.wordmark__sub {
-  font-family: var(--mono);
-  font-size: 0.62rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--ink-faint);
-  border-left: 1px solid var(--rule-strong);
-  padding-left: 0.55rem;
-  margin-left: 0.1rem;
-}
-
-.site-nav {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-.site-nav__link {
-  font-family: var(--mono);
-  font-size: 0.74rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--ink-soft);
-  text-decoration: none;
-  padding: 0.15rem 0;
-  border: none;
-  border-bottom: 1px solid transparent;
-  background: none;
-  cursor: pointer;
-  font-variant-caps: all-small-caps;
-}
-.site-nav__link:hover {
-  color: var(--ink);
-  border-bottom-color: var(--ink);
-}
-.logout-form { margin: 0; }
-
 /* ---------- Page frame ---------- */
-.page {
-  max-width: var(--measure);
-  margin-inline: auto;
-  padding: 2.75rem 1.5rem 5rem;
-}
-
 .page__head { margin-bottom: 2rem; }
 .page__head::after {
   content: "";
@@ -536,8 +454,6 @@ textarea { resize: vertical; line-height: 1.55; }
 
 /* ---------- Small screens ---------- */
 @media (max-width: 40rem) {
-  .site-header__inner { padding: 0.7rem 1rem; }
-  .page { padding: 1.75rem 1rem 4rem; }
   .data-table { font-size: 0.88rem; }
   .data-table thead th,
   .data-table tbody td { padding-right: 0.5rem; }
@@ -575,6 +491,12 @@ textarea { resize: vertical; line-height: 1.55; }
   flex-direction: column;
   gap: 1.5rem;
   border-top: 2px solid var(--accent-on-ink); /* hairline brand rule */
+}
+
+/* Focus ring on the dark --ink sidebar: base --accent is ~1.7:1 (invisible).
+   --accent-on-ink is the same oxblood hue lightened to ~5.4:1 on --ink (WCAG 1.4.11). */
+.sidebar :focus-visible {
+  outline-color: var(--accent-on-ink);
 }
 
 .sidebar__brand {
