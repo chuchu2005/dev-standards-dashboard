@@ -19,3 +19,7 @@ build/
 # Editor
 .vscode/
 .idea/
+
+# Tooling artifacts
+*.tsbuildinfo
+.playwright-mcp/
