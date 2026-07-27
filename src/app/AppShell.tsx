@@ -19,7 +19,7 @@ type NavItem = { href: string; label: string };
 const NAV_ITEMS: NavItem[] = [
   { href: "/catalog", label: "Catalog" },
   { href: "/conversations", label: "Conversations" },
-  // { href: "/review", label: "Review" }, // Chunk 5
+  { href: "/review", label: "Review" },
 ];
 
 function isActive(pathname: string, href: string): boolean {
