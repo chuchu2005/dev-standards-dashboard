@@ -7,7 +7,10 @@ let patternId: string;
 let categoryId: string;
 
 beforeEach(async () => {
-  await prisma.pattern.deleteMany({});
+  // Scope cleanup to patterns this file creates (by description) so we don't
+  // race with parallel test files that rely on patterns they just created
+  // (e.g. tests/worker/handlers/mine.test.ts).
+  await prisma.pattern.deleteMany({ where: { description: "X" } });
   await prisma.standard.deleteMany({ where: { code: { startsWith: "STD-" } } });
   const cat = await prisma.category.findUnique({ where: { slug: "testing" } });
   categoryId = cat!.id;

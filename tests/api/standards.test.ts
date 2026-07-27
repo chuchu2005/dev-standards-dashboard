@@ -1,7 +1,13 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import { NextRequest } from "next/server";
 import { PATCH } from "@/app/api/standards/[code]/route";
 import { prisma } from "@/lib/db";
+
+// The seed test asserts the total number of standards; clean our EDIT-* fixture
+// so this file doesn't leak state across the shared in-memory DB.
+beforeEach(async () => {
+  await prisma.standard.deleteMany({ where: { code: { startsWith: "EDIT-" } } });
+});
 
 function req(code: string, body: unknown) {
   return new NextRequest(`http://localhost/api/standards/${code}`, { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
