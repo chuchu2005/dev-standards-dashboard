@@ -17,23 +17,30 @@ export async function approvePattern(patternId: string, categoryId: string): Pro
   if (pattern.status !== "proposed") throw new Error(`Pattern is not proposed (status: ${pattern.status})`);
 
   const code = await nextStandardCode();
-  const standard = await prisma.standard.create({
-    data: {
-      code,
-      title: truncate(pattern.description, 80),
-      description: pattern.suggestedStandardText ?? pattern.description,
-      categoryId,
-      severity: pattern.severity,
-      status: "approved",
-      howToCheck: "", // refine via the catalog editor after approval (Task 5.3)
-      appliesTo: ["all"],
-      source: "mined",
-      sourceConversationId: pattern.fromConversationId,
-    },
-  });
-  await prisma.pattern.update({
-    where: { id: patternId },
-    data: { status: "approved-as-standard", linkedStandardId: standard.id, reviewedAt: new Date() },
+  // Atomic: if the pattern update fails, the Standard create rolls back too —
+  // otherwise a consumed STD-NNN code + orphaned Standard would be left behind.
+  // Sequential callback form (not the array form) because the pattern update
+  // needs `standard.id` from the create's result.
+  const standard = await prisma.$transaction(async (tx) => {
+    const created = await tx.standard.create({
+      data: {
+        code,
+        title: truncate(pattern.description, 80),
+        description: pattern.suggestedStandardText ?? pattern.description,
+        categoryId,
+        severity: pattern.severity,
+        status: "approved",
+        howToCheck: "", // refine via the catalog editor after approval (Task 5.3)
+        appliesTo: ["all"],
+        source: "mined",
+        sourceConversationId: pattern.fromConversationId,
+      },
+    });
+    await tx.pattern.update({
+      where: { id: patternId },
+      data: { status: "approved-as-standard", linkedStandardId: created.id, reviewedAt: new Date() },
+    });
+    return created;
   });
   return { standardId: standard.id, code: standard.code };
 }

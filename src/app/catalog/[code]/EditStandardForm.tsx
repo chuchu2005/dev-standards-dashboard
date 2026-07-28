@@ -25,7 +25,10 @@ export function EditStandardForm({ code, initial }: {
     setBusy(true);
     setMsg(null);
     setErr(null);
-    const appliesTo = f.appliesTo.split(",").map((s) => s.trim()).filter(Boolean);
+    const parsed = f.appliesTo.split(",").map((s) => s.trim()).filter(Boolean);
+    // Schema's @default(["all"]) only fires on create — coerce empty edits back
+    // to ["all"] so clearing the field doesn't leave an empty array.
+    const appliesTo = parsed.length ? parsed : ["all"];
     const res = await fetch(`/api/standards/${code}`, {
       method: "PATCH",
       headers: { "content-type": "application/json" },
