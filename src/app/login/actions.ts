@@ -9,7 +9,7 @@ export type LoginState = { error?: string } | null;
 
 export async function login(_prev: LoginState, formData: FormData): Promise<LoginState> {
   const password = String(formData.get("password") ?? "");
-  const ok = await verifyPassword(password, env.AUTH_PASSWORD_HASH);
+  const ok = verifyPassword(password, env.AUTH_PASSWORD);
   if (!ok) return { error: "Incorrect password." };
   await createSession();
   const next = String(formData.get("next") ?? "/catalog");

@@ -10,7 +10,7 @@ describe("env", () => {
     Object.assign(process.env, {
       DATABASE_URL: "mongodb://localhost:27017/test",
       OPENAI_API_KEY: "sk-test",
-      AUTH_PASSWORD_HASH: "$2a$10$hash",
+      AUTH_PASSWORD: "test-password",
       SESSION_SECRET: "x".repeat(32),
     });
     const { env } = await import("@/lib/env");
@@ -21,7 +21,7 @@ describe("env", () => {
   it("rejects a missing DATABASE_URL", async () => {
     Object.assign(process.env, {
       OPENAI_API_KEY: "sk-test",
-      AUTH_PASSWORD_HASH: "$2a$10$hash",
+      AUTH_PASSWORD: "test-password",
       SESSION_SECRET: "x".repeat(32),
     });
     delete process.env.DATABASE_URL;
@@ -32,7 +32,7 @@ describe("env", () => {
     Object.assign(process.env, {
       DATABASE_URL: "mongodb://localhost:27017/test",
       OPENAI_API_KEY: "sk-test",
-      AUTH_PASSWORD_HASH: "$2a$10$hash",
+      AUTH_PASSWORD: "test-password",
       SESSION_SECRET: "short",
     });
     await expect(import("@/lib/env")).rejects.toThrow();
