@@ -1,13 +1,9 @@
 // prisma/seed.ts
-import { PrismaClient, Prisma } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 type Cat = { slug: string; name: string; description: string; order: number };
-type Std = {
-  code: string; title: string; slug: string; severity: string; appliesTo: string[];
-  description: string; howToCheck: string; good?: string; bad?: string;
-};
 
 const categories: Cat[] = [
   { slug: "project-structure", name: "Project Structure", order: 1, description: "Repo layout, module boundaries, file/folder naming, separation of concerns." },
@@ -29,41 +25,6 @@ const categories: Cat[] = [
   { slug: "delivery-communication", name: "Delivery & Communication", order: 17, description: "Status updates, handoff docs, responsiveness." },
 ];
 
-const standards: Std[] = [
-  {
-    code: "VC-001", title: "Atomic commits", slug: "version-control", severity: "major", appliesTo: ["all"],
-    description: "Each commit is a single logical change that builds and passes tests on its own.",
-    howToCheck: "Inspect commit diffs: a commit must not mix unrelated concerns (e.g. feature + reformat). Running the test suite at the commit must pass.",
-    good: "fix: null-check user before profile render",
-    bad: "feat: add profile page + reformat whole file + bump deps",
-  },
-  {
-    code: "VC-002", title: "Conventional commit messages", slug: "version-control", severity: "minor", appliesTo: ["all"],
-    description: "Commit subjects follow Conventional Commits (type(scope): imperative summary, <=72 chars).",
-    howToCheck: "Subject matches ^(feat|fix|docs|style|refactor|perf|test|chore|build|ci)(\\(.+\\))?!?: .{1,72}$ and is imperative mood.",
-  },
-  {
-    code: "TEST-001", title: "Tests are independent", slug: "testing", severity: "major", appliesTo: ["all"],
-    description: "No test depends on another test's side effects or execution order.",
-    howToCheck: "Run the suite in random order; all tests still pass. No shared mutable state without explicit setup/teardown.",
-  },
-  {
-    code: "ERR-001", title: "No swallowed errors", slug: "error-handling", severity: "blocker", appliesTo: ["all"],
-    description: "Caught errors are logged, rethrown, or handled — never silently discarded.",
-    howToCheck: "Search for empty catch blocks (catch { } or catch (e) {}); none exist without a comment explaining why.",
-  },
-  {
-    code: "SEC-001", title: "No secrets in code", slug: "security", severity: "blocker", appliesTo: ["all"],
-    description: "API keys, tokens, and passwords come from env/config, never literals in source.",
-    howToCheck: "Scan for high-entropy strings and known key prefixes (sk-, AKIA, -----BEGIN) in tracked source; only fixtures/examples allowed.",
-  },
-  {
-    code: "TOOL-001", title: "AI output cites its sources", slug: "tool-ai-output", severity: "major", appliesTo: ["all"],
-    description: "Any factual claim or generated code references where it came from; fabricated facts are prohibited.",
-    howToCheck: "For each non-trivial claim/snippet in AI output, there is a verifiable source (file/line, doc link, or stated assumption). Claims with no source are flagged.",
-  },
-];
-
 async function main() {
   for (const c of categories) {
     await prisma.category.upsert({
@@ -72,21 +33,7 @@ async function main() {
       update: { name: c.name, description: c.description, order: c.order },
     });
   }
-  for (const s of standards) {
-    const category = await prisma.category.findUnique({ where: { slug: s.slug } });
-    if (!category) throw new Error(`Missing category ${s.slug} for standard ${s.code}`);
-    await prisma.standard.upsert({
-      where: { code: s.code },
-      create: {
-        code: s.code, title: s.title, description: s.description, howToCheck: s.howToCheck,
-        severity: s.severity, appliesTo: s.appliesTo, status: "approved",
-        categoryId: category.id, source: "authored",
-        examples: s.good || s.bad ? { good: s.good ?? null, bad: s.bad ?? null } : undefined,
-      },
-      update: {}, // intentional no-op on re-seed: standards are edited in-app; only categories refresh
-    });
-  }
-  console.log(`Seeded ${categories.length} categories and ${standards.length} exemplar standards.`);
+  console.log(`Seeded ${categories.length} categories.`);
 }
 
 main()
