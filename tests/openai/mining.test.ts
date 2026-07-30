@@ -50,3 +50,14 @@ it("passes existing standard codes and category names into the prompt", async ()
   expect(userContent).toContain("VC-001");
   expect(userContent).toContain("Testing");
 });
+
+it("frames mining around engagement, not software-development standards", async () => {
+  parseMock.mockResolvedValue({ choices: [{ message: { parsed: { patterns: [] } } }], usage: { total_tokens: 1, prompt_tokens: 1, completion_tokens: 0 } });
+  await minePatterns({ messages: [{ author: "A", content: "x" }], existingStandardCodes: [], existingPatternDescriptions: [], categoryNames: [] });
+  const call = parseMock.mock.calls[0][0];
+  const sys = call.messages.find((m: { role: string }) => m.role === "system");
+  const sysContent = Array.isArray(sys.content) ? sys.content.join(" ") : sys.content;
+  expect(sysContent).toContain("engagement");
+  expect(sysContent).toContain("reliability & delivery");
+  expect(sysContent).not.toContain("software-development standards");
+});

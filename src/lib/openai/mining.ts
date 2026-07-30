@@ -18,9 +18,9 @@ export async function minePatterns(input: {
       {
         role: "system",
         content: [
-          "You analyze a chat conversation between a client and a software freelancer.",
-          "Extract RECURRING or NOTABLE patterns relevant to software-development standards:",
-          "good practices followed, bad practices or violations, and unique notable details.",
+          "You analyze a chat conversation between a client and a software freelancer on Upwork.",
+          "Extract RECURRING patterns and UNIQUE notable details about the freelancer's engagement",
+          "— reliability & delivery, scope & requirements handling, communication & professionalism — plus any notable work-authenticity or conduct signals:",
           "For each pattern give: a concise description, a suggested category (use one of the listed category names if possible),",
           "severity (blocker/major/minor), an occurrences count, suggested standard text, and AT LEAST ONE direct-quote evidence",
           "from the transcript. Never fabricate quotes. Omit any pattern without real evidence.",

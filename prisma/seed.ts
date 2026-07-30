@@ -5,24 +5,13 @@ const prisma = new PrismaClient();
 
 type Cat = { slug: string; name: string; description: string; order: number };
 
+// Engagement-lens taxonomy (see docs/superpowers/specs/2026-07-30-engagement-rescope-design.md).
+// Conversations being ingested are codeless Upwork client↔freelancer chats, so the
+// catalog evaluates the freelancer's *engagement*, not code quality.
 const categories: Cat[] = [
-  { slug: "project-structure", name: "Project Structure", order: 1, description: "Repo layout, module boundaries, file/folder naming, separation of concerns." },
-  { slug: "code-style", name: "Code Style & Formatting", order: 2, description: "Linting, formatting, naming conventions, line length." },
-  { slug: "language-idioms", name: "Language & Framework Idioms", order: 3, description: "Idiomatic code; anti-patterns, per stack." },
-  { slug: "version-control", name: "Version Control & Commits", order: 4, description: "Commit messages, branching, PR size, atomic commits." },
-  { slug: "code-review", name: "Code Review", order: 5, description: "Review process, approval gates, what reviewers check." },
-  { slug: "testing", name: "Testing", order: 6, description: "Unit/integration/e2e, coverage thresholds, test independence." },
-  { slug: "error-handling", name: "Error Handling & Resilience", order: 7, description: "Error patterns, logging, graceful degradation, retries." },
-  { slug: "security", name: "Security", order: 8, description: "Input validation, secrets, authn/authz, deps, OWASP basics." },
-  { slug: "performance", name: "Performance", order: 9, description: "N+1 queries, caching, asset size, complexity." },
-  { slug: "accessibility", name: "Accessibility", order: 10, description: "Semantic HTML, ARIA, keyboard, contrast (when UI)." },
-  { slug: "documentation", name: "Documentation", order: 11, description: "Comments, README, API docs, decision records." },
-  { slug: "api-design", name: "API Design", order: 12, description: "REST/RPC conventions, versioning, status codes, error shape." },
-  { slug: "database-data", name: "Database & Data", order: 13, description: "Schema/migrations, indexing, query safety, transactions." },
-  { slug: "tool-ai-output", name: "Tool & AI Output Format", order: 14, description: "Structured, citation-backed, no fabricated facts, consistent formatting." },
-  { slug: "dependencies-build", name: "Dependencies & Build", order: 15, description: "Lockfiles, reproducible builds, env config." },
-  { slug: "deployment-ops", name: "Deployment & Ops", order: 16, description: "Health checks, logging, monitoring, configs." },
-  { slug: "delivery-communication", name: "Delivery & Communication", order: 17, description: "Status updates, handoff docs, responsiveness." },
+  { slug: "reliability-delivery", name: "Reliability & Delivery", order: 1, description: "Deadlines met or missed, ghosting, overpromising, availability, owning & reporting failures." },
+  { slug: "scope-requirements", name: "Scope & Requirements", order: 2, description: "Understanding the brief, scope creep, rework, missed or changed requirements." },
+  { slug: "communication-professionalism", name: "Communication & Professionalism", order: 3, description: "Clarity, responsiveness, tone, proactive updates, conduct." },
 ];
 
 async function main() {

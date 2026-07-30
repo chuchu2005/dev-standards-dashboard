@@ -11,7 +11,6 @@ export function EditStandardForm({ code, initial }: {
     howToCheck: string;
     severity: string;
     status: string;
-    appliesTo: string;
   };
 }) {
   const router = useRouter();
@@ -25,14 +24,12 @@ export function EditStandardForm({ code, initial }: {
     setBusy(true);
     setMsg(null);
     setErr(null);
-    const parsed = f.appliesTo.split(",").map((s) => s.trim()).filter(Boolean);
-    // Schema's @default(["all"]) only fires on create — coerce empty edits back
-    // to ["all"] so clearing the field doesn't leave an empty array.
-    const appliesTo = parsed.length ? parsed : ["all"];
+    // appliesTo is hidden from the UI (meaningless for engagement standards);
+    // keep the API contract stable by always sending ["all"].
     const res = await fetch(`/api/standards/${code}`, {
       method: "PATCH",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ ...f, appliesTo }),
+      body: JSON.stringify({ ...f, appliesTo: ["all"] }),
     });
     setBusy(false);
     if (res.ok) {
@@ -72,10 +69,6 @@ export function EditStandardForm({ code, initial }: {
           <option>approved</option>
           <option>deprecated</option>
         </select>
-      </label>
-      <label className="field">
-        <span className="field__label">Applies to (comma-separated stacks)</span>
-        <input value={f.appliesTo} onChange={(e) => setF({ ...f, appliesTo: e.target.value })} />
       </label>
       <div className="form-actions">
         <button type="submit" className="btn" disabled={busy}>
