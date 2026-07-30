@@ -37,10 +37,6 @@ export default async function StandardDetailPage({ params }: { params: Promise<{
           <dt>Status</dt>
           <dd><span className="badge">{standard.status}</span></dd>
         </div>
-        <div>
-          <dt>Applies to</dt>
-          <dd>{standard.appliesTo.join(", ")}</dd>
-        </div>
       </dl>
 
       <h2 className="section-title">Description</h2>
@@ -80,7 +76,6 @@ export default async function StandardDetailPage({ params }: { params: Promise<{
             howToCheck: standard.howToCheck,
             severity: standard.severity,
             status: standard.status,
-            appliesTo: standard.appliesTo.join(", "),
           }}
         />
       </section>

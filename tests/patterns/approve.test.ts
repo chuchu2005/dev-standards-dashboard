@@ -11,8 +11,8 @@ beforeEach(async () => {
   // (e.g. tests/worker/handlers/mine.test.ts).
   await prisma.pattern.deleteMany({ where: { description: "Tests must be independent of each other" } });
   await prisma.standard.deleteMany({ where: { code: { startsWith: "STD-" } } });
-  const cat = await prisma.category.findUnique({ where: { slug: "testing" } });
-  if (!cat) throw new Error("seed missing Testing category");
+  const cat = await prisma.category.findUnique({ where: { slug: "reliability-delivery" } });
+  if (!cat) throw new Error("seed missing Reliability & Delivery category");
   categoryId = cat.id;
   const conv = await prisma.conversation.create({
     data: { title: "T", developerName: "A", rawText: "A: tests should be isolated",

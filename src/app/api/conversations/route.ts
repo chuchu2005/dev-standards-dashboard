@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { parseConversation } from "@/lib/conversations/parse";
+import { parseConversationWithAI } from "@/lib/conversations/parse-ai";
 
 const Body = z.object({
   title: z.string().min(1),
@@ -16,7 +17,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
   const { title, developerName, rawText } = parsed.data;
-  const messages = parseConversation(rawText, developerName);
+  // Prefer AI-based role identification (client vs freelancer by name + context);
+  // fall back to the heuristic parser if the AI call fails or returns nothing.
+  let messages;
+  try {
+    messages = await parseConversationWithAI(rawText, developerName);
+    console.log("[ingest] parsed via AI");
+  } catch {
+    messages = parseConversation(rawText, developerName);
+    console.log("[ingest] parsed via heuristic fallback");
+  }
 
   // Materialize one bare Developer per distinct exact name (spec §4.7). Alias/variant merge is Phase 3.
   const existing = await prisma.developer.findFirst({ where: { name: developerName } });

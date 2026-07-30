@@ -2,8 +2,12 @@ import { describe, it, expect } from "vitest";
 import { prisma } from "@/lib/db";
 
 describe("seed", () => {
-  it("has all 17 categories", async () => {
-    const count = await prisma.category.count();
-    expect(count).toBe(17);
+  it("seeds the 3 engagement categories", async () => {
+    const slugs = (await prisma.category.findMany({ select: { slug: true } })).map((c) => c.slug);
+    expect(slugs.sort()).toEqual([
+      "communication-professionalism",
+      "reliability-delivery",
+      "scope-requirements",
+    ]);
   });
 });

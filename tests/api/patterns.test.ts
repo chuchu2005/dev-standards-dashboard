@@ -12,7 +12,7 @@ beforeEach(async () => {
   // (e.g. tests/worker/handlers/mine.test.ts).
   await prisma.pattern.deleteMany({ where: { description: "X" } });
   await prisma.standard.deleteMany({ where: { code: { startsWith: "STD-" } } });
-  const cat = await prisma.category.findUnique({ where: { slug: "testing" } });
+  const cat = await prisma.category.findUnique({ where: { slug: "reliability-delivery" } });
   categoryId = cat!.id;
   const conv = await prisma.conversation.create({ data: { title: "T", developerName: "A", rawText: "x", parsedMessages: [], status: "ingested" } });
   patternId = (await prisma.pattern.create({ data: { fromConversationId: conv.id, description: "X", severity: "minor", evidence: [{ quote: "q" }], status: "proposed" } })).id;
