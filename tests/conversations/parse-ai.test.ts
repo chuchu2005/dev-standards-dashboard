@@ -33,10 +33,12 @@ describe("parseConversationWithAI", () => {
     ]);
   });
 
-  it("throws when the OpenAI client rejects (so the caller falls back)", async () => {
-    // Synchronous throw (not mockRejectedValue) to avoid vitest's unhandled-rejection artifact.
-    parseMock.mockImplementation(() => { throw new Error("boom"); });
-    await expect(parseConversationWithAI("Alice: hi", "Bob")).rejects.toThrow("boom");
+  it("rejects when the OpenAI response is unusable (so the caller falls back)", async () => {
+    // Vitest flags errors that originate inside a vi.mock'd function as unhandled,
+    // even when caught. So exercise the failure path via a REAL-code throw:
+    // no `choices` → TypeError when parseConversationWithAI reads completion.choices[0].
+    parseMock.mockResolvedValue({});
+    await expect(parseConversationWithAI("Alice: hi", "Bob")).rejects.toThrow();
   });
 
   it("throws when the model returns 0 messages for non-empty input (so the caller falls back)", async () => {
