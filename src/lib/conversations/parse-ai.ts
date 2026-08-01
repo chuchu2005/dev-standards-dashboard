@@ -31,8 +31,8 @@ export async function parseConversationWithAI(raw: string, developerName: string
     `Output one entry per distinct message turn with the speaker's author name, role, and the message content ` +
     `**verbatim** (never summarize, paraphrase, or fabricate). If there is genuinely no conversation, return an empty array.`;
 
-  const completion = await openai.beta.chat.completions.parse({
-    model: env.OPENAI_MINING_MODEL,
+  const completion = await openai().beta.chat.completions.parse({
+    model: env().OPENAI_MINING_MODEL,
     messages: [
       { role: "system", content: systemPrompt },
       { role: "user", content: raw },

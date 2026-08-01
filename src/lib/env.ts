@@ -10,4 +10,13 @@ const schema = z.object({
 });
 
 export type Env = z.infer<typeof schema>;
-export const env = schema.parse(process.env);
+
+let _env: Env | undefined;
+
+/** Lazily validated – avoids crashing the Next.js build when secrets aren't in the CI env. */
+export function env(): Env {
+  if (!_env) {
+    _env = schema.parse(process.env);
+  }
+  return _env;
+}

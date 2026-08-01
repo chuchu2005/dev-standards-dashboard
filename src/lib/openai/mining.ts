@@ -12,8 +12,8 @@ export async function minePatterns(input: {
 }): Promise<{ patterns: ProposedPatternT[]; usage: MiningUsage }> {
   const transcript = input.messages.map((m) => `${m.author}: ${m.content}`).join("\n");
 
-  const completion = await openai.beta.chat.completions.parse({
-    model: env.OPENAI_MINING_MODEL,
+  const completion = await openai().beta.chat.completions.parse({
+    model: env().OPENAI_MINING_MODEL,
     messages: [
       {
         role: "system",

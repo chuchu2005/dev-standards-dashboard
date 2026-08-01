@@ -4,7 +4,7 @@ import { env } from "@/lib/env";
 export const COOKIE_NAME = "dsd_session";
 
 const encoder = new TextEncoder();
-const key = () => encoder.encode(env.SESSION_SECRET);
+const key = () => encoder.encode(env().SESSION_SECRET);
 
 export async function signSession(): Promise<string> {
   return new SignJWT({ authed: true })
